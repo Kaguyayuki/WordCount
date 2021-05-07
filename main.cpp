@@ -1,42 +1,44 @@
-#include <stdio.h>
 #include <iostream>
+#include <io.h>
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
-#include <io.h>
-#define bufsize 200
-#define maxlen_filename 100
+#include <stdio.h>
 using namespace std;
-struct Topt
+#define maxlan 300
+#define maxsize 300
+struct choice
 {
-    bool c,w;//Ñ¡Ôñ²ÎÊý
+    bool c,w;//é€‰æ‹©å‚æ•°
 };
 
-class Twc{
+class cow{
 private:
-    int num_of_characters;//×Ö·ûÊýÁ¿
-    int num_of_words;//´ÊÊý
-    struct Topt opt;
+    int cn;//å­—ç¬¦æ•°é‡
+    int wn;//è¯æ•°
+    struct choice opt;
 public:
-    Twc(){
-        num_of_characters=num_of_words=0;
+    cow()
+	{
+        cn=wn=0;
         opt.c=opt.w=false;
     };
-    void CalCharacters(FILE*fp);
-    void CalWords(FILE*fp);
-    void CalCodelines(FILE*fp);
+    void cncheck(FILE*fp);//å­—ç¬¦æ£€ç´¢ 
+    void wncheck(FILE*fp);//å•è¯æ£€ç´¢ 
     void ListFiles(string path,string mode);
     void Work(char*filename);
     void Choose(int argc,char*argv[]);
 };
 
-bool IsCharacter(char ch)//»Ø³µ¿Õ¸ñ»»ÐÐ 
+bool IsCharacter(char ch)//å›žè½¦ç©ºæ ¼æ¢è¡Œ 
 {
-    if(ch=='\t'||ch==' '||ch=='\n')return false;
-    else return true;
+    if(ch=='\t'||ch==' '||ch=='\n')
+		return false;
+    else 
+		return true;
 };
 
-bool IsCharacter_(char ch)//×ÖÄ¸ 
+bool IsCharacter_(char ch)//å­—æ¯ 
 {
     if(ch>='0'&&ch<='9')
 		return true;
@@ -48,7 +50,7 @@ bool IsCharacter_(char ch)//×ÖÄ¸
 };
 
 
-void Twc::CalCharacters(FILE *fp)//×Ö·û 
+void cow::cncheck(FILE *fp)//å­—ç¬¦ 
 {
     char flag=0;int count=0;
     while(!feof(fp)){
@@ -56,58 +58,59 @@ void Twc::CalCharacters(FILE *fp)//×Ö·û
         if(IsCharacter(flag))
             count++;
     }
-    num_of_characters=count-1;
-    cout<<"×Ö·ûÊý£º "<<num_of_characters<<endl;
+    cn=count-1;
+    cout<<"å­—ç¬¦æ•°ï¼š "<<cn<<endl;
     rewind(fp);
     return;
 }
 
-void Twc::CalWords(FILE*fp)//´Ê 
+void cow::wncheck(FILE*fp)//è¯ 
 {
-    char str[bufsize];
-    int len;//Ã¿ÐÐµÄ×Ö·ûÊý
+    int len;//æ¯è¡Œçš„å­—ç¬¦æ•°
     int count=0;
-    while(!feof(fp)){
-        fgets(str,bufsize,fp);
+    char str[maxsize];
+    while(!feof(fp))
+	{
+        fgets(str,maxsize,fp);
         len=strlen(str);
         for(int i=0;i<len;i++)
         {
-            if(IsCharacter_(str[i])){
+            if(IsCharacter_(str[i]))
+			{
                 if(i==0||!IsCharacter_(str[i-1]))
                     count++;
             }
         }
     }
-    num_of_words=count;
-    cout<<"µ¥´ÊÊý£º "<<num_of_words<<endl;
+    wn=count;
+    cout<<"å•è¯æ•°ï¼š"<<wn<<endl;
     rewind(fp);
     return;
 }
 
-void Twc::Work(char *filename) {//ÔËÐÐº¯Êý
-    FILE *fp=fopen(filename,"r");
-    if(opt.c== true){
-        CalCharacters(fp);
-    }
-    if(opt.w== true){
-        CalWords(fp);
-    }
-}
-void Twc::ListFiles(string path,string mode)//´¦Àí 
+void cow::Work(char *filename) //è¿è¡Œ
 {
-    _finddata_t file;
+    FILE *fp=fopen(filename,"r");
+    if(opt.c== true)
+    	cncheck(fp);
+    if(opt.w== true)
+        wncheck(fp);
+}
+void cow::ListFiles(string path,string mode)//å¤„ç† 
+{
+    _finddata_t file;//æŸ¥æ‰¾ 
     intptr_t HANDLE;
-    string Onepath = path + mode;
+    string Onepath = path + mode;//é€’å½’å¤´ 
     HANDLE = _findfirst(Onepath.c_str(), &file);
     do { 
         {
             cout << file.name << " " << endl;
             FILE *fp=fopen(&file.name[0],"r");
             if(opt.c== true){
-                CalCharacters(fp);
+                cncheck(fp);
             }
             if(opt.w== true){
-                CalWords(fp);
+                wncheck(fp);
             }
             cout<<"------------------------------"<<endl;
         }
@@ -115,7 +118,7 @@ void Twc::ListFiles(string path,string mode)//´¦Àí
     _findclose(HANDLE);
 }
 
-void Twc::Choose(int argc,char*argv[])//Ñ¡Ôñ
+void cow::Choose(int argc,char*argv[])//é€‰æ‹©
 {
     for(int i=0;i<argc-1;i++){
         if(strcmp(argv[i],"-c")==0){
@@ -127,9 +130,9 @@ void Twc::Choose(int argc,char*argv[])//Ñ¡Ôñ
     }
 }
 int main(int argc,char*argv[]){
-    char filename[maxlen_filename];
+    char filename[maxlan];
     strcpy(filename,argv[argc-1]);
-    Twc filefp;
+    cow filefp;
     filefp.Choose(argc,argv);
     filefp.Work(filename);
     return 0;
